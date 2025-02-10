@@ -1,20 +1,83 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>무료 스프레드시트 ID/PW 검색</title>
+    <title>Searching for HIS WLAN Login ID/Password</title>
+    <style>
+        body {
+            font-family: 'Arial, sans-serif';
+            background-color: #f0f4f8;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        label {
+            font-size: 1rem;
+            color: #555;
+        }
+
+        input {
+            width: 100%;
+            max-width: 300px;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 1rem;
+        }
+
+        button {
+            padding: 10px 20px;
+            background-color: #007BFF;
+            border: none;
+            border-radius: 5px;
+            color: white;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        #result {
+            margin-top: 20px;
+            font-size: 1.1rem;
+            color: #333;
+        }
+
+        .container {
+            background-color: white;
+            padding: 20px 40px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+            text-align: center;
+        }
+
+    </style>
     <script>
         async function fetchData() {
             const nameInput = document.getElementById("name").value.trim();
             const dobInput = document.getElementById("dob").value.trim();
 
             if (!nameInput || !dobInput) {
-                alert("이름과 생년월일을 입력하세요.");
+                alert("Please enter both name and date of birth.");
                 return;
             }
 
-            const csvUrl = "https://docs.google.com/spreadsheets/d/1LIoqhVTjm5n6-NAVJ2O-oBw_0xxE4HIS4i7gF2KtD5c/export?format=csv"; // CSV로 변경한 URL 입력
+            const csvUrl = "https://docs.google.com/spreadsheets/d/1LIoqhVTjm5n6-NAVJ2O-oBw_0xxE4HIS4i7gF2KtD5c/export?format=csv"; 
 
             try {
                 const response = await fetch(csvUrl);
@@ -24,7 +87,7 @@
 
                 let found = false;
                 for (let i = 1; i < rows.length; i++) {
-                    const [name, dob, id, pw] = rows[i].map(cell => cell.trim().replace(/\"/g, ""));  // 공백 및 따옴표 제거
+                    const [name, dob, id, pw] = rows[i].map(cell => cell.trim().replace(/"/g, ""));  
                     if (name === nameInput && dob === dobInput) {
                         document.getElementById("result").innerText = `ID: ${id}, PW: ${pw}`;
                         found = true;
@@ -33,22 +96,26 @@
                 }
 
                 if (!found) {
-                    document.getElementById("result").innerText = "일치하는 정보를 찾을 수 없습니다.";
+                    document.getElementById("result").innerText = "No matching information found.";
                 }
             } catch (error) {
-                console.error("데이터 가져오기 실패:", error);
-                document.getElementById("result").innerText = "오류가 발생했습니다.";
+                console.error("Failed to fetch data:", error);
+                document.getElementById("result").innerText = "An error occurred while fetching the data.";
             }
         }
     </script>
 </head>
 <body>
-    <h1>구글 스프레드시트 ID/PW 검색</h1>
-    <label for="name">이름:</label>
-    <input type="text" id="name" placeholder="이름 입력" required><br><br>
-    <label for="dob">생년월일 (예: 20000101):</label>
-    <input type="text" id="dob" placeholder="생년월일 입력" required><br><br>
-    <button onclick="fetchData()">검색하기</button>
-    <p id="result"></p>
+    <div class="container">
+        <h1>Searching for HIS WLAN Login ID/Password</h1>
+        <label for="name">Name:</label><br>
+        <input type="text" id="name" placeholder="Enter your name" required><br>
+
+        <label for="dob">Date of Birth (YYYYMMDD):</label><br>
+        <input type="text" id="dob" placeholder="Enter your date of birth" required><br>
+
+        <button onclick="fetchData()">Search</button>
+        <p id="result"></p>
+    </div>
 </body>
 </html>
