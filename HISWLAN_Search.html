@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>무료 스프레드시트 ID/PW 검색</title>
+    <script>
+        async function fetchData() {
+            const nameInput = document.getElementById("name").value.trim();
+            const dobInput = document.getElementById("dob").value.trim();
+
+            if (!nameInput || !dobInput) {
+                alert("이름과 생년월일을 입력하세요.");
+                return;
+            }
+
+            const csvUrl = "https://docs.google.com/spreadsheets/d/1LIoqhVTjm5n6-NAVJ2O-oBw_0xxE4HIS4i7gF2KtD5c/export?format=csv"; // CSV로 변경한 URL 입력
+
+            try {
+                const response = await fetch(csvUrl);
+                const data = await response.text();
+                
+                const rows = data.split("\n").map(row => row.split(","));
+
+                let found = false;
+                for (let i = 1; i < rows.length; i++) {
+                    const [name, dob, id, pw] = rows[i].map(cell => cell.trim().replace(/\"/g, ""));  // 공백 및 따옴표 제거
+                    if (name === nameInput && dob === dobInput) {
+                        document.getElementById("result").innerText = `ID: ${id}, PW: ${pw}`;
+                        found = true;
+                        break;
+                    }
+                }
+
+                if (!found) {
+                    document.getElementById("result").innerText = "일치하는 정보를 찾을 수 없습니다.";
+                }
+            } catch (error) {
+                console.error("데이터 가져오기 실패:", error);
+                document.getElementById("result").innerText = "오류가 발생했습니다.";
+            }
+        }
+    </script>
+</head>
+<body>
+    <h1>구글 스프레드시트 ID/PW 검색</h1>
+    <label for="name">이름:</label>
+    <input type="text" id="name" placeholder="이름 입력" required><br><br>
+    <label for="dob">생년월일 (예: 20000101):</label>
+    <input type="text" id="dob" placeholder="생년월일 입력" required><br><br>
+    <button onclick="fetchData()">검색하기</button>
+    <p id="result"></p>
+</body>
+</html>
